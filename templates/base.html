@@ -6,6 +6,7 @@
     <title>trAInwave - {% block title %}{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
     <!-- Navigation -->
@@ -19,6 +20,7 @@
                 <div class="flex space-x-4">
                     <a href="{{ url_for('index') }}" class="text-gray-700 hover:text-blue-500">Exercises</a>
                     <a href="{{ url_for('about') }}" class="text-gray-700 hover:text-blue-500">About</a>
+                    <a href="{{ url_for('chat') }}" class="text-gray-700 hover:text-blue-500">Chat with AI</a>
                 </div>
             </div>
         </div>
