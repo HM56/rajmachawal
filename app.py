@@ -5,8 +5,20 @@ from absl import logging
 import json
 import threading
 import time
+import requests
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
+
+# Add chatbot configuration
+ONDEMAND_API_KEY = os.getenv('ONDEMAND_API_KEY')
+EXTERNAL_USER_ID = os.getenv('EXTERNAL_USER_ID')
+CHAT_API_BASE_URL = 'https://api.on-demand.io/chat/v1'
+
 
 # Initialize MediaPipe
 mpDraw = mp.solutions.drawing_utils
@@ -187,6 +199,65 @@ def track_lunges(points):
         exercise_active = False
         counter += 1
 
+def create_chat_session():
+    create_session_url = f'{CHAT_API_BASE_URL}/sessions'
+    headers = {
+        'apikey': ONDEMAND_API_KEY
+    }
+    body = {
+        "pluginIds": [],
+        "externalUserId": EXTERNAL_USER_ID
+    }
+    
+    try:
+        response = requests.post(create_session_url, headers=headers, json=body)
+        response.raise_for_status()
+        return response.json()['data']['id']
+    except requests.exceptions.RequestException as e:
+        print(f"Error creating chat session: {e}")
+        return None
+
+def submit_chat_query(session_id, query):
+    submit_query_url = f'{CHAT_API_BASE_URL}/sessions/{session_id}/query'
+    headers = {
+        'apikey': ONDEMAND_API_KEY
+    }
+    body = {
+        "endpointId": "predefined-openai-gpt4o",
+        "query": query,
+        "pluginIds": ["plugin-1712327325", "plugin-1713962163"],
+        "responseMode": "sync"
+    }
+    
+    try:
+        response = requests.post(submit_query_url, headers=headers, json=body)
+        response.raise_for_status()
+        response_data = response.json()
+        
+        # Extract the answer from the nested response
+        if 'data' in response_data and 'answer' in response_data['data']:
+            return {'message': response_data['data']['answer']}
+        else:
+            return {'error': 'Invalid response format'}
+            
+    except requests.exceptions.RequestException as e:
+        print(f"Error submitting query: {e}")
+        return {'error': str(e)}
+
+@app.route('/api/chat/query', methods=['POST'])
+def chat_query():
+    data = request.json
+    session_id = data.get('session_id')
+    query = data.get('query')
+    
+    if not session_id or not query:
+        return jsonify({'error': 'Missing session_id or query'}), 400
+    
+    response = submit_chat_query(session_id, query)
+    if response:
+        return jsonify(response)
+    return jsonify({'error': 'Failed to get response'}), 500
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -213,6 +284,32 @@ def get_count():
     global counter, position
     return jsonify({'count': counter, 'position': position})
 
+# New routes for chatbot
+@app.route('/chat')
+def chat():
+    return render_template('chat.html')
+
+@app.route('/api/chat/session', methods=['POST'])
+def create_session():
+    session_id = create_chat_session()
+    if session_id:
+        return jsonify({'session_id': session_id})
+    return jsonify({'error': 'Failed to create chat session'}), 500
+
+# @app.route('/api/chat/query', methods=['POST'])
+# def chat_query():
+#     data = request.json
+#     session_id = data.get('session_id')
+#     query = data.get('query')
+    
+#     if not session_id or not query:
+#         return jsonify({'error': 'Missing session_id or query'}), 400
+    
+#     response = submit_chat_query(session_id, query)
+#     if response:
+#         return jsonify(response)
+#     return jsonify({'error': 'Failed to get response'}), 500
+
 @app.route('/start_camera')
 def start_camera():
     camera.start()
@@ -222,6 +319,8 @@ def start_camera():
 def stop_camera():
     camera.stop()
     return jsonify({'status': 'success'})
+
+
 
 @app.errorhandler(403)
 def forbidden_error(error):
