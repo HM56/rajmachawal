@@ -18,7 +18,7 @@ Features-
 --Push-ups
 --Pull-ups
 --Squats
---Lunges
+--Shoulder Raises
 --Curls
 --Presses
 --Deadlifts
