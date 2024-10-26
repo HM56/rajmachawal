@@ -17,10 +17,19 @@
                     <i class="fas fa-dumbbell text-blue-500 text-2xl"></i>
                     <span class="font-bold text-xl">trAInwave</span>
                 </a>
-                <div class="flex space-x-4">
+                <div class="relative flex items-center space-x-3">
                     <a href="{{ url_for('index') }}" class="text-gray-700 hover:text-blue-500">Exercises</a>
                     <a href="{{ url_for('about') }}" class="text-gray-700 hover:text-blue-500">About</a>
+                    <a href="{{ url_for('feedback') }}" class="text-gray-700 hover:text-blue-500">Feedback</a>
                     <a href="{{ url_for('chat') }}" class="text-gray-700 hover:text-blue-500">Chat with AI</a>
+                    <!-- User menu -->
+                    <!-- <div class="relative flex items-center space-x-3"> -->
+                        <span class="text-gray-700">{{ session.email }}</span>
+                            <a href="{{ url_for('logout') }}" 
+                                class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                                Logout
+                            </a>
+                    <!-- </div> -->
                 </div>
             </div>
         </div>
@@ -42,9 +51,12 @@
                 <div>
                     <h3 class="font-semibold text-lg mb-4">Quick Links</h3>
                     <ul class="space-y-2">
-                        <li><a href="{{ url_for('index') }}" class="text-gray-600 hover:text-blue-500">Home</a></li>
-                        <li><a href="{{ url_for('about') }}" class="text-gray-600 hover:text-blue-500">About</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-blue-500">Privacy Policy</a></li>
+                        {% if session.get('email') %}
+                        <a href="{{ url_for('index') }}" class="text-gray-700 hover:text-blue-500">Exercises</a>
+                        <a href="{{ url_for('about') }}" class="text-gray-700 hover:text-blue-500">About</a>
+                        <a href="{{ url_for('feedback') }}" class="text-gray-700 hover:text-blue-500">Feedback</a>
+                        <a href="{{ url_for('chat') }}" class="text-gray-700 hover:text-blue-500">Chat with AI</a>
+                        {% endif %}            
                     </ul>
                 </div>
                 <div>

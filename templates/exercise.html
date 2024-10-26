@@ -33,6 +33,13 @@
                         <p class="text-gray-600">Position</p>
                         <p class="text-2xl font-semibold" id="position">-</p>
                     </div>
+                    <!-- Add this near your exercise counter or where appropriate in exercise.html -->
+                    <div class="mt-4 text-center">
+                        <a href="{{ url_for('leaderboard', exercise=exercise) }}" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                            View Leaderboard
+                        </a>
+                    </div>
                 </div>
                 
                 <div class="mt-8">
@@ -40,8 +47,8 @@
                     <ul class="list-disc list-inside space-y-2 text-gray-600">
                         <li>Position yourself in front of the camera</li>
                         <li>Make sure your full body is visible</li>
-                        <li>Cross your arms to quit the exercise</li>
-                        <li>Touch left shoulder with right hand to switch exercises</li>
+                        <!-- <li>Cross your arms to quit the exercise</li> -->
+                        <!-- <li>Touch left shoulder with right hand to switch exercises</li> -->
                     </ul>
                 </div>
             </div>
@@ -102,6 +109,32 @@
     setInterval(updateStats, 1000);
     </script>
     <script>
+        // Add this to your existing exercise.html JavaScript
+window.addEventListener('beforeunload', function() {
+    // Call the exit_exercise endpoint when leaving the page
+    fetch('/exit_exercise').then(response => {
+        console.log('Camera stopped');
+    }).catch(error => {
+        console.error('Error stopping camera:', error);
+    });
+});
+
+// Also add this to handle manual navigation away from exercise
+document.addEventListener('DOMContentLoaded', function() {
+    const navLinks = document.querySelectorAll('a:not([href^="#"])');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            fetch('/exit_exercise').then(response => {
+                window.location.href = this.href;
+            }).catch(error => {
+                console.error('Error stopping camera:', error);
+                window.location.href = this.href;
+            });
+        });
+    });
+});
+
         function updateStats() {
             $.getJSON('/get_count', function(data) {
                 $('#counter').text(data.count);

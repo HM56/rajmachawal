@@ -2,12 +2,31 @@
 {% block title %}Chat with AI Trainer{% endblock %}
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-4xl font-bold text-center mb-8">Chat with Your AI Trainer</h1>
+    <h1 class="text-4xl font-bold text-center mb-8">trAInwave buddy</h1>
     
     <div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
         <div id="chat-messages" class="space-y-4 h-96 overflow-y-auto mb-4">
             <div class="bg-blue-100 p-4 rounded">
                 <p>Hello! I'm your AI fitness trainer. How can I help you today?</p>
+            </div>
+        </div>
+
+        <!-- Example Prompts Section -->
+        <div class="mb-4">
+            <p class="text-sm text-gray-600 mb-2">Try these example questions:</p>
+            <div class="flex flex-wrap gap-2">
+                <button class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm transition-colors"
+                    onclick="setExamplePrompt('Tell me the best exercises for biceps')">
+                    Best exercises for biceps
+                </button>
+                <button class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm transition-colors"
+                    onclick="setExamplePrompt('What are some alternatives for pushups')">
+                    Pushup alternatives
+                </button>
+                <button class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm transition-colors"
+                    onclick="setExamplePrompt('Generate a diet plan for weight loss')">
+                    Weight loss diet plan
+                </button>
             </div>
         </div>
         
@@ -71,6 +90,13 @@ function addMessage(message, type = 'user') {
     
     messagesDiv.appendChild(messageElement);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// New function for example prompts
+function setExamplePrompt(text) {
+    const input = document.getElementById('chat-input');
+    input.value = text;
+    input.focus();
 }
 
 async function sendMessage() {
